@@ -1,0 +1,121 @@
+%
+
+o<ztool> sub
+    #<abbrev_tool_stickout> = #1
+    #<repetitions> = [FIX[#2 + 1]]
+    #<offset> = #3
+    (higher we can get)
+    #<z-top> = 0.000
+    (absolute xy of z-finder)
+    #<x-finder> = #<_x-finder>
+    #<y-finder> = #<_y-finder>
+    (absolute z, where the plain spindle would touch z-finder, not relevant if this is outside of limits)
+    (for my machine, it's -188.500)
+    #<z-finder> = #<_z-finder>
+
+    (PRINT, abbrev #<abbrev_tool_stickout>)
+
+    o10 if [#<abbrev_tool_stickout> EQ 0]
+        (MSG, param 1, tool stickout not set)
+        o<ztool> return [-1]
+    o10 endif
+
+    o20 if [[[#<x-finder>] EQ 0.000] OR [[#<y-finder>] EQ 0.000] OR [[#<z-finder>] EQ 0.000]]
+        (MSG, _x-finder or siblings not set)
+        o<ztool> return [-1]
+    o20 endif
+
+    o30 if [#<repetitions> LT 1]
+        (MSG, repetitions must be at least 1)
+        o<ztool> return [-1]
+    o30 endif
+
+    (MSG, abbrev tool stickout: #<abbrev_tool_stickout>, repetitions: #<repetitions>, offset: #<offset>)
+
+    (push modale state)
+    M73
+    (xy)
+    G17
+    (mm)
+    G21
+    (compensation off)
+    G40
+    (tool len compensation off)
+    G49
+    (coord system)
+    G58
+    (cancel canned cycle)
+    G80
+    (absolute mode)
+    G90
+    (feed rate in mm/min)
+    G94
+
+    G53 G0 Z[#<z-top>]
+
+    (move above probe)
+    G53 G0 X[#<x-finder>] Y[#<y-finder>]
+
+    (zero g58)
+    G10 L20 P5 X0 Y0 Z0
+
+    (fast move close to finder)
+    #<expected-z> = [#<z-finder> +  #<abbrev_tool_stickout>]
+    #<fast-z> = [#<expected-z> + 20]
+    #<slow-z> = [#<expected-z> - 10]
+    G38.3 F400 Z[#<fast-z>]
+
+    (#5070 is 1 for probe succeeded, 0 for failed)
+    o50 if [#5070 EQ 1]
+        M72
+        (MSG, Tool touched probe too early!)
+        o<ztool> return [-1]
+    o50 endif
+
+    (slower move to find finder)
+    G38.2 F150 Z[#<slow-z>]
+    o60 if [#5070 EQ 0]
+        M72
+        (MSG, z-finder not found)
+        o<ztool> return [-1]
+    o60 endif
+
+    (#5063 is probed z)
+    #<probed-z-finder> = #5063
+
+    #<z-sum> = 0
+
+    (PROBEOPEN zprobe_results.txt)
+    #<i> = #<repetitions>
+    o100 while [#<i> GT 0]
+        #<i> = [#<i> - 1]
+
+        (go up a little)
+        G1 F150 Z[#5063 + 1]
+
+        (slow move to find contact with z-finder probe)
+        G38.2 F15 Z[#<probed-z-finder> - 2.0]
+
+        (save result)
+        #<z-sum> = [#<z-sum> + #5063]
+    o100 endwhile
+    (PROBECLOSE)
+
+    #<z-avg> = [#<z-sum> / #<repetitions>]
+    #<probed-len> = [[#<abbrev_tool_stickout> - #<expected-z>] + [#<z-avg> + #<offset>]]
+
+    (MSG, SUCCESS)
+    (MSG, #<probed-len>)
+
+    G53 G0 Z0
+
+    (pop modale state)
+    M72
+    
+    (set tool length compensation offset)
+    G43.1 X0 Y0 Z[#<probed-len>]
+
+    o<ztool> return [#<probed-len>]
+    
+o<ztool> endsub
+%

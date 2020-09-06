@@ -1,0 +1,54 @@
+%
+o<first> sub
+    #<abbrev_tool_stickout> = #1
+    (higher we can get)
+    #<z-top> = 0.000
+    (absolute xy of z-finder)
+    #<x-finder> = #<_x-finder>
+    #<y-finder> = #<_y-finder>
+    (absolute z, where the plain spindle would touch z-finder, not relevant if this is outside of limits)
+    (for my machine, it's -188.500)
+    #<z-finder> = #<_z-finder>
+
+    (PRINT, abbrev #<abbrev_tool_stickout>)
+
+    o10 if [#<abbrev_tool_stickout> EQ 0]
+        (abort, param 1: tool stickout not set)
+    o10 endif
+
+    o20 if [[[#<x-finder>] EQ 0.000] OR [[#<y-finder>] EQ 0.000] OR [[#<z-finder>] EQ 0.000]]
+        (abort, _x-finder or siblings not set)
+    o20 endif
+
+    (push modale state)
+    M70
+    (xy)
+    G17
+    (mm)
+    G21
+    (compensation off)
+    G40
+    (tool len compensation off)
+    G49
+    (coord system)
+    G58
+    (cancel canned cycle)
+    G80
+    (absolute mode)
+    G90
+    (feed rate in mm/min)
+    G94
+
+    (wait for user to change tool)
+    (wait on raising edge on user input 1, which is in my case also the probe)
+    M66 P0 L1 Q999999
+
+    (pop modale state)
+    M72
+    
+    (set tool length compensation offset)
+    G43.1 Z20 X0 Y0
+
+    G54
+o<first> endsub
+%

@@ -1,0 +1,14 @@
+o<alwaysaborts> sub
+    #4444 = [#4444 + 1]
+    (debug, 4444: #4444 #<_call_level>)
+    o<store_modal> call [1]
+
+    G55
+
+    M66 P0 L1 Q999999
+
+    (abort, shit)
+
+    ; o<store_modal> call [0]
+o<alwaysaborts> endsub
+M2

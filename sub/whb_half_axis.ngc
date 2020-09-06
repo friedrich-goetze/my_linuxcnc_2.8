@@ -1,0 +1,10 @@
+o<whb_half_axis> sub
+    o<whb_axis> call
+    o<10> if [#<_value> EQ 0]
+        G10 L20 P0 X[#<_x> / 2]
+    o<10> elseif [#<_value> EQ 1]
+        G10 L20 P0 Y[#<_y> / 2]
+    o<10> elseif [#<_value> EQ 2]
+        G10 L20 P0 Z[#<_z> / 2]
+    o<10> endif
+o<whb_half_axis> endsub

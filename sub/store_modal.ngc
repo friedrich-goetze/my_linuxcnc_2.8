@@ -1,0 +1,245 @@
+o<store_modal> sub
+
+    ; params
+    ; store = 1, restore = 2, invalidate = 3
+    #<mode> = [FIX[#1]]
+    #<level> = [FIX[#2]]
+    #<silent> = [FIX[#3]]
+
+    o1 if [#<level> EQ 0.0]
+        #<level> = #<_call_level>
+    o1 endif
+
+    ; setup constants
+    #<minlevel> = 0.0
+    #<maxlevel> = 10.0
+
+    #<ioff> = 3900
+    #<in> = 110   
+
+    ; check params
+    o10 if [[#<level> LT #<minlevel>] OR [#<level> GT #<maxlevel>]]
+        (abort, level out of bounds 1..10: #<level>)
+    o10 endif
+    
+    o20 if [[#<mode> NE 1.0] AND [#<mode> NE 2.0] AND [#<mode> NE 3.0]]
+        (abort, mode not specified)
+    o20 endif
+    
+    ;setup paramter indices
+    #<i> = [#<ioff> + [#<level> * #<in>]]
+
+    #<iinuse> = [#<i> + 0]
+
+    ; G21 metric is on; else G20 imperial is on
+    #<imetric> = [#<i> + 1]
+
+    ; 170 180 190 171 181 191
+    #<iplane> = [#<i> + 2]
+
+    ; 400 410 411 420 421
+    #<iccomp> = [#<i> + 3]
+
+    ; G90 is on; else G91 is on
+    #<iabsolute> = [#<i> + 4]
+
+    ; G94 is on
+    #<iunitsperminute> = [#<i> + 5]
+    ; G95 is on
+    #<iunitsperrev> = [#<i> + 6]
+    ; else: G93 is on
+
+    ; 540 550 560 570 580 590 591 592 593
+    #<icoordsystem> = [#<i> + 7]
+
+    ; G43 is on; else G49
+    #<itooloffset> = [#<i> + 8]
+
+    ; G99 is on; else G98
+    #<iretractoldz> = [#<i> + 9]
+
+    ; G97 is on; else G96
+    #<ispindlerpmmode> = [#<i> + 10]
+
+    ; G90.1 is on; else G91.1
+    #<iijkabsolutemode> = [#<i> + 11]
+
+    ; ; always mark all levels above as unused
+    ; #<ill> = [#<level> + 1.0]
+    ; o25 while [#<ill> LE #<maxlevel>]
+    ;     #[#<ioff> + [#<ill> * #<in>]] = 0
+    ;     #<ill> = [#<ill> + 1.0]
+    ; o25 endwhile
+
+    o30 if [#<mode> EQ 1.0]
+
+        o310 if [[#[#<iinuse>] NE 0.0] AND #<silent> EQ 0.0]
+            (debug, overwrite used level #<level>)
+        o310 endif
+
+        #[#<iinuse>] = 1.0
+
+        ; check if we can store values
+        o311 if [[#<_ccomp> NE 400] AND #<silent> EQ 0.0]
+            (debug, store cuttercomp #<_ccomp> but cannot restore later)
+        o311 endif
+
+        ; store values
+        #[#<imetric>] = #<_metric>
+        #[#<iplane>] = #<_plane>        
+        #[#<iccomp>] = #<_ccomp>      
+        #[#<iabsolute>] = #<_absolute>
+        #[#<iunitsperminute>] = #<_units_per_minute>
+        #[#<iunitsperrev>] = #<_units_per_rev>
+        #[#<icoordsystem>] = #<_coord_system>
+        #[#<itooloffset>] = #<_tool_offset>
+        #[#<iretractoldz>] = #<_retract_old_z>
+        #[#<ispindlerpmmode>] = #<_spindle_rpm_mode>
+        #[#<iijkabsolutemode>] = #<_ijk_absolute_mode>
+
+        ; store coordinate systens
+        #<coordid> = 0
+        o312 while [#<coordid> LT 9.0]
+            #<paramindex> = [5221 + [20.0 * #<coordid>]]
+            #<si> = [#<ioff> + 19 + [#<level> * #<in>] + [10.0 * #<coordid>]]
+            #<j> = 0
+            o3121 while [#<j> LT 10.0]
+                #[#<si> + #<j>] = #[#<paramindex> + #<j>]
+                #<j> = [#<j> + 1.0]
+            o3121 endwhile
+
+            #<coordid> = [#<coordid> + 1.0]
+        o312 endwhile
+
+    o30 else if [#<mode> EQ 2.0]
+        ; restore
+
+        ; check if we can restore values
+        o320 if [#[#<iinuse>] NE 1.0]
+
+            o3201 if [#<silent> EQ 0.0]
+                (debug, cannot restore from level #<level>, it's unused)
+            o3201 endif
+
+            o<store_modal> return [-1]
+
+        o320 else
+
+            #[#<iinuse>] = 0.0
+
+            ; restore values
+            o3210 if [#[#<imetric>] EQ 1.0]
+                G21
+            o3210 else
+                G20
+            o3210 endif
+
+            ; 170 180 190 171 181 191
+            o3211 if [#[#<iplane>] EQ 170.0]
+                G17
+            o3211 elseif [#[#<iplane>] EQ 180.0]
+                G18
+            o3211 elseif [#[#<iplane>] EQ 190.0]
+                G19
+            o3211 elseif [#[#<iplane>] EQ 171.0]
+                G17.1
+            o3211 elseif [#[#<iplane>] EQ 181.0]
+                G18.1
+            o3211 elseif [#[#<iplane>] EQ 191.0]
+                G19.1
+            o3211 endif
+
+            ; 400 410 411 420 421
+            o3212 if [#[#<iccomp>] EQ 400.0]
+                G40
+            o3212 endif
+
+            ; G90 is on; else G91 is on
+            o3213 if [#[#<iabsolute>] EQ 1.0]
+                G90
+            o3213 else
+                G91
+            o3213 endif
+
+            o3214 if [#[#<iunitsperminute>] EQ 1.0]
+                G94
+            o3214 elseif [#[#<iunitsperrev>] EQ 1.0]
+                G95
+            o3214 else
+                G93
+            o3214 endif
+
+            ; 540 550 560 570 580 590 591 592 593
+            o3215 if [#[#<icoordsystem>] EQ 540.0]
+                G54
+            o3215 elseif [#[#<icoordsystem>] EQ 550.0]
+                G55
+            o3215 elseif [#[#<icoordsystem>] EQ 560.0]
+                G56
+            o3215 elseif [#[#<icoordsystem>] EQ 570.0]
+                G57
+            o3215 elseif [#[#<icoordsystem>] EQ 580.0]
+                G58
+            o3215 elseif [#[#<icoordsystem>] EQ 590.0]
+                G59
+            o3215 elseif [#[#<icoordsystem>] EQ 591.0]
+                G59.1
+            o3215 elseif [#[#<icoordsystem>] EQ 592.0]
+                G59.2
+            o3215 elseif [#[#<icoordsystem>] EQ 593.0]
+                G59.3
+            o3215 endif
+
+            ; G43 is on; else G49
+            o3216 if [#[#<itooloffset>] EQ 1.0]
+                G43
+            o3216 else
+                G49
+            o3216 endif
+
+            o3217 if [#[#<iretractoldz>] EQ 1.0]
+                G99
+            o3217 else
+                G98
+            o3217 endif
+
+            o3218 if [#[#<ispindlerpmmode>] EQ 1.0]
+                G97
+            o3218 else
+                G96
+            o3218 endif
+
+            o3219 if [#[#<iijkabsolutemode>] EQ 1.0]
+                G90.1
+            o3219 else
+                G91.1
+            o3219 endif
+
+            #<coordid> = 0
+            o3240 while [#<coordid> LT 9.0]
+                #<si> = [#<ioff> + 19 + [#<level> * #<in>] + [10.0 * #<coordid>]]
+
+
+                o3241 if [#<coordid> EQ 1.0]
+                    #<xxx> = #[#<si> + 0]
+                    #<yyy> = #[#<si> + 1]
+                o3241 endif
+
+                G10 L2 P[#<coordid> + 1] X[#[#<si>]] Y[#[#<si> + 1]] Z[#[#<si> + 2]]
+                ;G10 L2 P[#<coordid> + 3] A[#[#<si> + 3]] B[#[#<si> + 4]] C[#[#<si> + 5]]
+                ;G10 L2 P[#<coordid> + 3] U[#[#<si> + 6]] V[#[#<si> + 7]] W[#[#<si> + 8]]
+                G10 L2 P[#<coordid> + 1] R[#[#<si> + 9]]
+
+                #<coordid> = [#<coordid> + 1.0]
+            o3240 endwhile
+        
+        o320 endif
+    
+    o30 else if [#<mode> EQ 3.0]
+        ; invalidate
+        #[#<iinuse>] = 0
+
+    o30 endif
+
+o<store_modal> endsub [1]
+M2

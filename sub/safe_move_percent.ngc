@@ -1,0 +1,41 @@
+o<safe_move_percent> sub
+
+    o<prolog> call
+    o1 if [#<_value> NE 1]
+        (MSG, safe move failed)
+        o<safe_move_percent> return [-1]
+    o1 endif
+
+    #<xmin> = [#<_ini[AXIS_X]MIN_LIMIT> + 10]
+    #<xmax> = [#<_ini[AXIS_X]MAX_LIMIT> - 10]
+    #<xlen> = [#<xmax>-#<xmin>]
+
+    #<ymin> = [#<_ini[AXIS_Y]MIN_LIMIT> + 10]
+    #<ymax> = [#<_ini[AXIS_Y]MAX_LIMIT> - 10]
+    #<ylen> = [#<ymax>-#<ymin>]
+
+    #<zmin> = [#<_ini[AXIS_Z]MIN_LIMIT> + 10]
+    #<zmax> = [#<_ini[AXIS_Z]MAX_LIMIT> - 10]
+    #<zlen> = [#<zmax>-#<zmin>]
+
+    G53 G0 Z0
+
+    #<x> = -100000
+    #<y> = -100000
+
+    o10 if [[#1 GE 0] AND [#1 LE 1]]
+        #<x> = [#<xmin> + [#1 * #<xlen>]]
+    o10 endif
+
+    o20 if [[#2 GE 0] AND [#2 LE 1]]
+        #<y> = [#<ymin> + [#2 * #<ylen>]]
+    o20 endif
+
+    o30 if [[#<x> NE -100000] AND [#<y> NE -100000]]
+        G53 X[#<x>] Y[#<y>]
+    o30 elseif [#<x> NE -100000]
+        G53 X[#<x>]
+    o30 elseif [#<y> NE -100000]
+        G53 Y[#<y>]
+    o30 endif
+o<safe_move_percent> endsub [1]

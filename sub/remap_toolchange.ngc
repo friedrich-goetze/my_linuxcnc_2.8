@@ -1,0 +1,103 @@
+o<remap_toolchange> sub
+
+    ; check params
+    #<is_remeasure> = #1
+
+    o1 if[#<is_remeasure> EQ 1]
+        #<selected_tool> = [#5400]
+    o1 endif
+
+    o2 if[#<selected_tool> EQ 0.0]
+        (abort, TOOL 0 not supported)
+    o2 endif
+
+    ; save modal state and prolog
+    o<prolog> call
+    o10 if [#<_value> NE 1.0]
+        o<remap_toolchange> return [-1]
+    o10 endif
+
+    ; also save position before change
+    #<xx> = #<_x>
+    #<yy> = #<_y>
+
+    o11 if [#<is_remeasure> NE 1]
+        
+        ; check if tool is already selected
+        ;
+        o20 if [#<_current_tool> EQ #<selected_tool>]
+            ; (debug, Tool #<selected_tool> is already selected. To insert and probe tool again, press input 1 for 3 seconds. Otherwise press shorter.)
+            ; ; wait for user pressing button
+            ; M66 P0 L1 Q999999
+            ; ; wait for user releasing button
+            ; M66 P0 L4 Q3.0
+            ; o21 if [#5399 GE 0.0]
+            ;     (MSG, Continue to use Tool as is.)
+            ;     o<epilog> call
+            ;     o<remap_toolchange> return [1]
+            ; o21 endif
+            (MSG, M6: Tool already selected.)
+            o<epilog> call
+            o<remap_toolchange> return [1]
+        o20 endif
+
+        ; do default stuff
+        ; this also gives access to tooltable
+        M6
+
+        ; goto tool-change possition 
+        ; 
+        o<safe_move_percent> call [0.25] [0.1]
+        o25 if [#<_value> EQ -1.0]
+            (MSG, ERR: SAFE MOVE FAILED)
+            o<epilog> call
+            o<remap_toolchange> return [-1.0]
+        o25 endif
+
+        ; wait for user pressing input 1
+        (MSG, Change tool and press probe when done.)
+        M66 P0 L1 Q999999
+    o11 endif
+
+    #<offset> = 0.0
+    ; o30 if [[#<selected_tool> GE 80.0] AND [#<selected_tool> NE 99.0]]
+    ;     (MSG, large tool detected, using probing offset)
+    ;     #<offset> = 7.0
+    ; o30 endif
+
+    o<probe_toollen> call [#<offset>]
+    #<toollen> = [#<_value>]
+
+    ; custom code for 3axis edge finder
+    o40 if [#<selected_tool> EQ 99.0]
+        (MSG, TOOL IS A EDGEFINDER)
+        #<toollen> = [#<toollen> - 2.0]
+    o40 endif
+
+    o50 if [#<toollen> EQ -1.0]
+        (MSG, PROBE TOOLLEN FAILED)
+        o<epilog> call
+        o<remap_toolchange> return [-1.0]
+    o50 endif 
+
+
+    ; restore modal state
+    o<epilog> call
+
+    ; use measured tool
+    o60 if [#<selected_tool> EQ 0.0]
+        G43.1 X0 Y0 Z[#<toollen>]
+    o60 else
+        G10 L1 P[#<selected_tool>] Z[#<toollen>]
+        G43
+    o60 endif
+
+    (MSG, ... TOOLCHANGE DONE! check everything! ...)
+    M0
+
+    ; goto where all started...
+    G53 G0 Z0
+    G0 X[#<xx>] Y[#<yy>]
+
+o<remap_toolchange> endsub [1]
+M2

@@ -8,14 +8,25 @@ net spindle-at-speed        =>    gladevcp.spindle-at-speed-led
 # **** Setup GLADE MDI buttons ****
 net machine-is-on          =>    gladevcp.button-box-active
 # **** MDI Command 0 - zero-x-axis is specified in the machine named INI file under [HALUI] heading ****
-net MDI-zerox            gladevcp.zero-x          =>  halui.mdi-command-00
-net machine-is-on          =>    gladevcp.zero-x-active
+net MDI-zerox            gladevcp.zero-x          =>  halui.mdi-command-17
+setp gladevcp.zero-x-active true
 
 # **** MDI Command 1 - zero-y-axis is specified in the machine named INI file under [HALUI] heading ****
-net MDI-zeroy            gladevcp.zero-y          =>  halui.mdi-command-01
-net machine-is-on          =>    gladevcp.zero-y-active
+net MDI-zeroy            gladevcp.zero-y          =>  halui.mdi-command-18
+setp gladevcp.zero-y-active true
 
 # **** MDI Command 2 - zero-z-axis is specified in the machine named INI file under [HALUI] heading ****
-net MDI-zeroz            gladevcp.zero-z          =>  halui.mdi-command-02
-net machine-is-on          =>    gladevcp.zero-z-active
+net MDI-zeroz            gladevcp.zero-z          =>  halui.mdi-command-19
+setp gladevcp.zero-z-active true
 
+net MDI-move0 gladevcp.x0y100 => halui.mdi-command-20
+net MDI-move1 gladevcp.x50y100 => halui.mdi-command-21
+net MDI-move2 gladevcp.x100y100 => halui.mdi-command-22
+net MDI-move3 gladevcp.x0y50 => halui.mdi-command-23
+net MDI-move4 gladevcp.x50y50 => halui.mdi-command-24
+net MDI-move5 gladevcp.x100y50 => halui.mdi-command-25
+net MDI-move6 gladevcp.x0y0 => halui.mdi-command-26
+net MDI-move7 gladevcp.x50y0 => halui.mdi-command-27
+net MDI-move8 gladevcp.x100y0 => halui.mdi-command-28
+net MDI-force-toollenmeasure gladevcp.measure-tool => halui.mdi-command-29
+setp gladevcp.measure-tool-active true

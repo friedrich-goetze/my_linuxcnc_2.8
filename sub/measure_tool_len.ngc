@@ -1,0 +1,8 @@
+o<measure_tool_len> sub
+
+    #<probex> = #1666
+    #<probey> = #1667
+    #<probez> = #1668
+
+o<measure_tool_len> endsub
+m2

@@ -1,0 +1,12 @@
+o<onabort> sub
+    #<i> = 1.0
+    o10 while [#<i> LE 10.0]
+        o<store_modal> call [2] [#<i>] [1]
+        o11 if [#<_value> EQ 1.0]
+            #<i> = 100000.0
+        o11 else
+            #<i> = [#<i> + 1.0]
+        o11 endif
+    o10 endwhile
+o<onabort> endsub
+M2

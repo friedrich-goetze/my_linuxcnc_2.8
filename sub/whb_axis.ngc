@@ -1,0 +1,12 @@
+
+o<whb_axis> sub
+    #<r> = -1.0
+    o<10> if [#<_hal[whb.halui.axis.x.select]> EQ 1]
+        #<r> = 0.0
+    o<10> elseif [#<_hal[whb.halui.axis.y.select]> EQ 1]
+        #<r> = 1.0
+    o<10> elseif [#<_hal[whb.halui.axis.z.select]> EQ 1]
+        #<r> = 2.0
+    o<10> endif
+    o<whb_axis> return [#<r>]
+o<whb_axis> endsub

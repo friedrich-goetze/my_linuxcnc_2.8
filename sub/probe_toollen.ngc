@@ -1,0 +1,67 @@
+; performs a probe mesurement and returns the probed tool len
+; if not successfull, -1 will be returned
+
+o<probe_toollen> sub
+
+    #<offset> = #1
+
+    o<prolog> call
+    o10 if [#<_value> NE 1.0]
+        o<probe_toollen> return [-1.0]
+    o10 endif
+
+    #<probex> = [#<_ini[ZFINDER]X>]
+    #<probey> = [#<_ini[ZFINDER]Y>]
+    #<probez> = [#<_ini[ZFINDER]Z>]
+    #<maxtoollen> = [#<_ini[ZFINDER]MAX_TOOLLEN>]
+
+    o20 if [[#<probex> EQ 0.0] OR [#<probey> EQ 0.0] OR [#<probez> EQ 0.0]]
+        o<epilog> call
+        (debug, Probe position is not set #50 - #52)
+        o<probe_toollen> return [-1.0]
+    o20 endif
+
+    ; disable toollen offset, if any
+    G49
+
+    ; go above z-finder
+    G53 G0 Z0
+    G53 G0 X[#<probex> + #<offset>] Y[#<probey>]
+    
+    ; make pos on top of finder origin
+    G10 L20 P0 X0 Y0 Z0
+    G54
+
+    ; fast (and hopefully safe move downwards)
+    G38.3 F1500 Z[#<probez> + #<maxtoollen>]
+
+    o21 if [#5070 EQ 1]
+        (MSG, Error: tool seems to be longer than ini.zfinder.maxtoollen)
+        G53 G0 Z0
+        o<epilog> call
+        o<probe_toollen> return [-1.0]
+    o21 endif
+
+    ; find z-finder
+    G38.3 F500 Z[#<probez>]
+    (MSG, 1)
+    o30 if [#5070 NE 1.0]
+        (debug, z-finder not found...)
+        G53 G0 Z0
+        o<epilog> call
+        o<probe_toollen> return [-1.0]
+    o30 endif
+    G38.4 F100 Z[#<_z>+1.0]
+    (MSG, 2)
+
+    G38.3 F20 Z[#<_z>-2]
+    (MSG, 3)
+
+    #<probed_len> = [#5063 - #<probez>]
+
+    o<epilog> call
+
+    G53 G0 Z0
+
+o<probe_toollen> endsub [#<probed_len>]
+M2

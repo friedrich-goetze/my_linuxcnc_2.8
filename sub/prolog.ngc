@@ -1,0 +1,50 @@
+; This subroutine returns -1, if the calling subroutine shoulnd proceed.
+; This subroutine returns 1 if everything is alright.
+; This subroutine sets modal state at a common setting..
+
+o<prolog> sub
+
+    o10 if [[#<_hal[joint.0.homed]> NE 1] OR [#<_hal[joint.1.homed]> NE 1] OR [#<_hal[joint.2.homed]> NE 1] OR [#<_hal[joint.3.homed]> NE 1]]
+        (debug, Machine isn't homed)
+        o<prolog> return [-1]
+    o10 endif
+
+    o<store_modal> call [1]
+    o20 if [#<_value> NE 1.0]
+        (debug, store_modal failed at calllevel #<_call_level>)
+        o<prolog> return [-1]
+    o20 endif
+
+    ; metric system
+    G21
+
+    ; XY plane
+    G17
+
+    ; no cutter compensation
+    G40
+
+    ; absolute distance mode
+    G90
+
+    ; feed mode mm/min
+    G94
+
+    ; coordinate system
+    G54
+
+    ; retract plane
+    G98
+
+    ; spindle rpm mode
+    G97
+
+    ; arc mode
+    G91.1
+
+    ; exact path mode
+    ; G61
+    
+o<prolog> endsub [1]
+
+m2

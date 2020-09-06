@@ -1,0 +1,6 @@
+o<epilog> sub
+
+    o<store_modal> call [2]
+
+o<epilog> endsub
+M2
