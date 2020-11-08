@@ -11,6 +11,7 @@ setp    hm2_5i25.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.y2,pid.z,pid.s
 loadrt abs names=abs.spindle
 loadrt lowpass names=lowpass.spindle
+loadrt or2 names=or2.probe
 
 addf hm2_5i25.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -23,6 +24,7 @@ addf pid.s.do-pid-calcs       servo-thread
 addf abs.spindle              servo-thread
 addf lowpass.spindle          servo-thread
 addf hm2_5i25.0.write         servo-thread
+addf or2.probe                servo-thread
 
 # external output signals
 
@@ -55,7 +57,9 @@ net estop-ext     <=  hm2_5i25.0.7i76.0.0.input-00
 net din-00     <=  hm2_5i25.0.7i76.0.0.input-06
 
 # --- PROBE-IN ---
-net probe-in     <=  hm2_5i25.0.7i76.0.0.input-07-not
+net probe-in-altprobe or2.probe.in0 <= hm2_5i25.0.7i76.0.0.input-07-not
+net probe-in-zfinder or2.probe.in1 <= hm2_5i25.0.7i76.0.0.input-05
+net probe-in     <=  or2.probe.out
 
 # --- BOTH-HOME-X ---
 net both-home-x     <=  hm2_5i25.0.7i76.0.0.input-29
@@ -311,11 +315,11 @@ net spindle-ccw         => hm2_5i25.0.7i76.0.0.spindir
 
 # ---setup spindle control signals---
 
-# net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
-# net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
-# net spindle-vel-cmd-rpm        <=  spindle.0.speed-out
-# net spindle-vel-cmd-rpm-abs    <=  spindle.0.speed-out-abs
-# net spindle-enable             <=  spindle.0.on
+net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
+net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
+net spindle-vel-cmd-rpm        <=  spindle.0.speed-out
+net spindle-vel-cmd-rpm-abs    <=  spindle.0.speed-out-abs
+net spindle-enable             <=  spindle.0.on
 net spindle-cw                 <=  spindle.0.forward
 net spindle-ccw                <=  spindle.0.reverse
 net spindle-brake              <=  spindle.0.brake

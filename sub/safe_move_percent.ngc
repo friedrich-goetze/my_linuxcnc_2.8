@@ -39,3 +39,4 @@ o<safe_move_percent> sub
         G53 Y[#<y>]
     o30 endif
 o<safe_move_percent> endsub [1]
+m2

@@ -1,0 +1,7 @@
+o<write_xy> sub
+    (debug, #<_x>,#<_y>)
+    (LOGAPPEND,xy.txt)
+    (LOG,#<_x>,#<_y>)
+    (LOGCLOSE)
+o<write_xy> endsub
+M2

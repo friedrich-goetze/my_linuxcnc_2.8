@@ -1,0 +1,37 @@
+o<pcb_hole> sub
+    #<x_offset> = [#1]
+    #<y_offset> = [#2]
+    #<mirror>   = [#3]
+
+    
+    o10 if [#<mirror> NE 0]
+        #<x_offset> = [-[#<x_offset>]]
+    o10 endif
+
+    G0 X[#<x_offset>] Y[#<y_offset>]
+    G1 F1000 Z10
+
+    S24000
+    M3
+    G4 P5
+
+    G1 F300 Z2
+
+    o20 if [#<mirror> EQ 0]
+        G1 F100 Z-2
+    o20 else
+        G1 F300 X[#<x_offset> - 3] Y[#<y_offset> - 3]
+        G1 F100 Z-.2
+        G1 F450 X[#<x_offset> + 3] Y[#<y_offset> - 3]
+        G1 F450 X[#<x_offset> + 3] Y[#<y_offset> + 3]
+        G1 F450 X[#<x_offset> - 3] Y[#<y_offset> + 3]
+        G1 F450 X[#<x_offset> - 3] Y[#<y_offset> - 3]
+    o20 endif
+
+    G0 Z10
+
+    M5
+    G53 G0 Z0
+    
+o<pcb_hole> endsub
+m2

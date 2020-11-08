@@ -93,11 +93,11 @@ o<remap_toolchange> sub
     o60 endif
 
     (MSG, ... TOOLCHANGE DONE! check everything! ...)
-    M0
+    ; M0
 
     ; goto where all started...
     G53 G0 Z0
-    G0 X[#<xx>] Y[#<yy>]
+    ; G0 X[#<xx>] Y[#<yy>]
 
 o<remap_toolchange> endsub [1]
 M2
