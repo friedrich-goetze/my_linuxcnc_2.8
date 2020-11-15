@@ -11,7 +11,9 @@ setp    hm2_5i25.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.y2,pid.z,pid.s
 loadrt abs names=abs.spindle
 loadrt lowpass names=lowpass.spindle
-loadrt or2 names=or2.probe
+loadrt or2 names=or2.probe,or2.coolant
+# personality 0x104: 6 inputs, logic: and
+loadrt logic names=logic.estop personality=0x106
 
 addf hm2_5i25.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -25,6 +27,8 @@ addf abs.spindle              servo-thread
 addf lowpass.spindle          servo-thread
 addf hm2_5i25.0.write         servo-thread
 addf or2.probe                servo-thread
+addf or2.coolant			  servo-thread
+addf logic.estop                servo-thread
 
 # external output signals
 
@@ -51,7 +55,13 @@ net spindle-ccw  =>     hm2_5i25.0.7i76.0.0.output-15
 
 
 # --- ESTOP-EXT ---
-net estop-ext     <=  hm2_5i25.0.7i76.0.0.input-00
+net estop-inverter logic.estop.in-00 <= hm2_5i25.0.7i76.0.0.input-08
+net estop-panic-button logic.estop.in-01 <= hm2_5i25.0.7i76.0.0.input-09
+net step-alm-x  logic.estop.in-02 <= hm2_5i25.0.7i76.0.0.input-24-not
+net step-alm-yl logic.estop.in-03 <= hm2_5i25.0.7i76.0.0.input-25-not
+net step-alm-yr logic.estop.in-04 <= hm2_5i25.0.7i76.0.0.input-26-not
+net step-alm-z  logic.estop.in-05 <= hm2_5i25.0.7i76.0.0.input-27-not
+net estop-ext     <=  logic.estop.and
 
 # --- DIN-00 ---
 net din-00     <=  hm2_5i25.0.7i76.0.0.input-06
@@ -330,8 +340,7 @@ net spindle-index-enable      <=>  spindle.0.index-enable
 
 # ---Setup spindle at speed signals---
 
-sets spindle-at-speed true
-
+net spindle-at-speed <= hm2_5i25.0.7i76.0.0.input-28-not
 
 #******************************
 # connect miscellaneous signals
@@ -365,8 +374,14 @@ net jog-speed             halui.axis.jog-speed
 
 #  ---coolant signals---
 
-net coolant-mist      <=  iocontrol.0.coolant-mist
-net coolant-flood     <=  iocontrol.0.coolant-flood
+#net coolant-mist      <=  iocontrol.0.coolant-mist
+#net coolant-flood     <=  iocontrol.0.coolant-flood
+net coolant-mist   or2.coolant.in0 iocontrol.0.coolant-mist
+net coolant-flood  or2.coolant.in1 iocontrol.0.coolant-flood
+
+net coolant-flood   => hm2_5i25.0.7i76.0.0.output-13
+net minimal-lubricant-air    or2.coolant.out => hm2_5i25.0.7i76.0.0.output-12
+
 
 #  ---probe signal---
 
