@@ -9,6 +9,14 @@ loadusr -W xhc-whb04b-6 -HsfB
 # pendant signal configuration
 # ######################################################################
 
+setp axis.x.jog-accel-fraction 0.222
+setp axis.y.jog-accel-fraction 0.222
+setp axis.z.jog-accel-fraction 0.222
+setp joint.0.jog-accel-fraction 0.222
+setp joint.1.jog-accel-fraction 0.222
+setp joint.2.jog-accel-fraction 0.222
+setp joint.3.jog-accel-fraction 0.222
+
 # On/Off signals
 net machine.is-on                         halui.machine.is-on                   whb.halui.machine.is-on
 net pdnt.machine.on                       whb.halui.machine.on                  halui.machine.on

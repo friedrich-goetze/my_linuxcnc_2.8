@@ -67,8 +67,8 @@ net estop-ext     <=  logic.estop.and
 net din-00     <=  hm2_5i25.0.7i76.0.0.input-06
 
 # --- PROBE-IN ---
-net probe-in-altprobe or2.probe.in0 <= hm2_5i25.0.7i76.0.0.input-07-not
-net probe-in-zfinder or2.probe.in1 <= hm2_5i25.0.7i76.0.0.input-05
+net probe-in-zfinder or2.probe.in0 <= hm2_5i25.0.7i76.0.0.input-07-not
+net probe-in-altprobe or2.probe.in1 <= hm2_5i25.0.7i76.0.0.input-05
 net probe-in     <=  or2.probe.out
 
 # --- BOTH-HOME-X ---
