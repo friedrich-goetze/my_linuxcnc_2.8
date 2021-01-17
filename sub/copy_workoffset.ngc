@@ -1,0 +1,33 @@
+o<copy_workoffset> sub
+
+#<from> = [FIX[#1]]
+#<to>   = [FIX[#2]]
+
+(MSG, 1)
+
+o<10> if [[#<from> LT 1] OR [#<from> GT 9]]
+	(abort, FROM < 1 OR > 9)
+o<10> elseif [[#<to> LT 1] OR [#<to> GT 9]]
+    (abort, TO < 1 OR > 9)
+o<10> elseif [#<to> EQ #<from>]
+    (abort, TO == FROM)
+o<10> endif
+
+(MSG, 2)
+
+; G54: 5221-5230 20er Steps
+
+#<f_start> = [5221 + [[#<from> - 1] * 20]]
+#<t_start> = [5221 + [[#<to> - 1] * 20]]
+
+(debug, S: #<f_start> T: #<t_start>)
+
+#<i> = 0
+
+o<20> while [#<i> LT 9]
+	#[#<t_start> + #<i>] = #[#<f_start> + #<i>]	
+	#<i> = [#<i> + 1]
+o<20> endwhile
+
+o<copy_workoffset> endsub
+M2

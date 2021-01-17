@@ -46,10 +46,10 @@ net y-enable  =>     hm2_5i25.0.7i76.0.0.output-10
 net z-enable  =>     hm2_5i25.0.7i76.0.0.output-11
 
 # --- SPINDLE-CW ---
-net spindle-cw  =>     hm2_5i25.0.7i76.0.0.output-14
+net spindle-cw  =>     hm2_5i25.0.7i76.0.0.output-15
 
 # --- SPINDLE-CCW ---
-net spindle-ccw  =>     hm2_5i25.0.7i76.0.0.output-15
+net spindle-ccw  =>     hm2_5i25.0.7i76.0.0.output-14
 
 # external input signals
 
@@ -319,7 +319,8 @@ setp   hm2_5i25.0.7i76.0.0.spinout-minlim    [SPINDLE_0]OUTPUT_MIN_LIMIT
 setp   hm2_5i25.0.7i76.0.0.spinout-maxlim    [SPINDLE_0]OUTPUT_MAX_LIMIT
 setp   hm2_5i25.0.7i76.0.0.spinout-scalemax  [SPINDLE_0]OUTPUT_SCALE
 
-net spindle-output      => hm2_5i25.0.7i76.0.0.spinout
+net spindle-output      => abs.spindle.in
+net abs-spindle-output abs.spindle.out     => hm2_5i25.0.7i76.0.0.spinout
 net spindle-enable      => hm2_5i25.0.7i76.0.0.spinena
 net spindle-ccw         => hm2_5i25.0.7i76.0.0.spindir
 
