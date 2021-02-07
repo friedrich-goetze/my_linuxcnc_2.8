@@ -13,7 +13,7 @@ o<probe_toollen> sub
     #<probex> = [#<_ini[ZFINDER]X>]
     #<probey> = [#<_ini[ZFINDER]Y>]
     #<probez> = [#<_ini[ZFINDER]Z>]
-    #<maxtoollen> = [#<_ini[ZFINDER]MAX_TOOLLEN>]
+    #<maxtoollen> = 180
 
     o20 if [[#<probex> EQ 0.0] OR [#<probey> EQ 0.0] OR [#<probez> EQ 0.0]]
         o<epilog> call
