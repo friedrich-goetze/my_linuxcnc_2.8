@@ -1,0 +1,62 @@
+%
+
+o<pcbalign_continue> sub
+    ;#<_paX>  = #<_pcbaX>
+    ;#<_paY>  = #<_pcbaY>
+    ;#<_paNthHole> = 0
+    ;#<_pcbaDepth>
+
+    #<w> = 3
+
+    #<mirror> = [#<_paNthHole> MOD 2]
+
+    #<centerX> = #<_paX>
+    o<100> if [#<mirror>]
+        #<centerX> = [-#<centerX>]
+    o<100> endif
+
+    #<centerY> = [#<_paY> - [#<_paNthHole> * [#<w> + 2]]]
+
+    o<200> if [#<centerY> LE [2 * #<w>]]
+        (MSG, reached Dead zone: quit)
+        o<pcbalign_continue> return
+    o<200> endif
+
+    #<hw> = [#<w> / 2]
+
+    M3 S20000
+
+    G53 G0 Z0
+    G0 X#<centerX> Y#<centerY>
+    G0 Z1
+    G0 X[#<centerX>] Y[#<centerY>]
+
+    G1 F120 Z[-#<_pcbaDepth>]
+
+    M5
+
+    G53 G0 Z0
+    (MSG, Turn PCB)
+    M0
+
+	M3 S20000
+	
+    #<centerX> = [-#<centerX>]
+    G0 X#<centerX> Y#<centerY>
+    G0 Z1
+    G0 X[#<centerX> - #<hw>] Y[#<centerY> + #<hw>]
+    G1 F120 Z-0.1
+    G1 F120 X[#<centerX> + #<hw>] Y[#<centerY> + #<hw>]
+    G1 F120 X[#<centerX> + #<hw>] Y[#<centerY> - #<hw>]
+    G1 F120 X[#<centerX> - #<hw>] Y[#<centerY> - #<hw>]
+    G1 F120 X[#<centerX> - #<hw>] Y[#<centerY> + #<hw>]
+	
+	M5 
+	
+    G53 G0 Z0
+    G0 X0
+    #<_paNthHole> = [#<_paNthHole> + 1]
+
+o<pcbalign_continue> endsub
+M2
+%

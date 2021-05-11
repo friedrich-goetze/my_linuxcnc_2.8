@@ -55,15 +55,15 @@ o<remap_toolchange> sub
         o25 endif
 
         ; wait for user pressing input 1
-        (MSG, Change tool and press probe when done.)
-        M66 P0 L1 Q999999
+        (MSG, Change tool and press continue.)
+        M0
     o11 endif
 
     #<offset> = 0.0
-    ; o30 if [[#<selected_tool> GE 80.0] AND [#<selected_tool> NE 99.0]]
-    ;     (MSG, large tool detected, using probing offset)
-    ;     #<offset> = 7.0
-    ; o30 endif
+    o30 if [[#<selected_tool> EQ 98.0]]
+        (MSG, saw detected, using probing offset)
+        #<offset> = 33
+    o30 endif
 
     o<probe_toollen> call [#<offset>]
     #<toollen> = [#<_value>]
@@ -91,13 +91,12 @@ o<remap_toolchange> sub
         G10 L1 P[#<selected_tool>] Z[#<toollen>]
         G43
     o60 endif
-
-    (MSG, ... TOOLCHANGE DONE! check everything! ...)
+    
     ; M0
 
     ; goto where all started...
     G53 G0 Z0
-    ; G0 X[#<xx>] Y[#<yy>]
+    G0 X[#<xx>] Y[#<yy>]
 
 o<remap_toolchange> endsub [1]
 M2

@@ -1,0 +1,34 @@
+%
+
+; This routine assumes, that G54 is on top of the pcb with X in the center.
+
+; Parameter which must be set prematurely:
+; #<_pcbaX>     : x coord of first hole
+; #<_pcbaY>     : y coord of first hole
+; #<_pcbaDepth> : thickness of the pcb
+
+o<pcbalign_start> sub
+    o<100> if [[EXISTS[#<_pcbaX>] EQ 0] OR [#<_pcbaX> EQ 0]]
+        (MSG, #<_pcbaX> not specified or 0)
+        o<pcbalign_start> return [-1]
+    o<100> endif
+    o<200> if [[EXISTS[#<_pcbaY>] EQ 0] OR [#<_pcbaY> EQ 0]]
+        (MSG, #<_pcbaY> not specified or 0)
+        o<pcbalign_start> return [-1]
+    o<200> endif
+
+    o<300> if [[EXISTS[#<_pcbaDepth>] EQ 0] OR [#<_pcbaDepth> LE 0]]
+        (MSG, #<_pcbaDepth> not specified or lt 0)
+        o<pcbalign_start> return [-1]
+    o<300> endif
+
+    #<_paX>  = #<_pcbaX>
+    #<_paY>  = #<_pcbaY>
+    #<_paNthHole> = 0
+
+    o<pcbalign_continue> call
+
+o<pcbalign_start> endsub
+M2
+
+%
